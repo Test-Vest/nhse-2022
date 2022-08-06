@@ -73,11 +73,13 @@ function setOption(row) {
 
       case "after":
         const afterInput = document.createElement("input");
-        afterInput.classList.add("form-input")
+        afterInput.classList.add("form-control")
+        afterInput.style = "width: 12rem; height: 2rem;"
         row.appendChild(afterInput);
         const afterText = document.createElement("p");
         afterText.innerText = "in";
-        afterText.style.margin = 0
+        afterText.style.margin = 0;
+        afterText.style.border = 
         row.appendChild(afterText);
         const afterSelect = document.createElement("select");
         afterSelect.id = "input-"+counter;
@@ -90,6 +92,8 @@ function setOption(row) {
 
       case "set":
         const setInput = document.createElement("input");
+        setInput.classList.add("form-control")
+        setInput.style = "width: 12rem; height: 2rem;"
         row.appendChild(setInput);
         const setText = document.createElement("p");
         setText.innerText = "in";
@@ -106,6 +110,8 @@ function setOption(row) {
 
       case "trigger":
         const triggerInput = document.createElement("input");
+        triggerInput.classList.add("form-control")
+        triggerInput.style = "width: 12rem; height: 2rem;"
         row.appendChild(triggerInput);
         const triggerText = document.createElement("p");
         triggerText.innerText = "on";
