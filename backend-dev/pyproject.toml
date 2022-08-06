@@ -11,6 +11,7 @@ selenium = "^4.3.0"
 selenium-wire = "^4.6.5"
 waitress = "^2.1.2"
 gunicorn = "^20.1.0"
+pywebcopy = "^7.0.2"
 
 [tool.poetry.dev-dependencies]
 
