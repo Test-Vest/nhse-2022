@@ -1,3 +1,4 @@
-websites/*
-template/*
+**/websites
+**/template
 **/__pycache__
+.DS_Store
