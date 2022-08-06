@@ -1,6 +1,7 @@
 from lib2to3.pgen2 import driver
 import os, json
 from flask import Flask, Response, render_template, send_from_directory, request
+from flask_cors import CORS
 from seleniumwire import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.common.by import By
@@ -15,15 +16,28 @@ URL = "https://" + WEBSITE
 app = Flask(
     __name__,
     static_url_path='', 
-    static_folder='websites/hackathon_site/' + WEBSITE)
+    static_folder='hackathon_site/' + WEBSITE)
+CORS(app)
+
+def download_website():
+    return save_website(
+        url=URL,
+        project_folder=APP_ROOT,
+        project_name="hackathon_site",
+        bypass_robots=True,
+        debug=True,
+        open_in_browser=True,
+        delay=None,
+        threaded=True,
+   )
 
 class website_scraper:
-    def __init__(self):
+    def __init__(self, url):
         CHROME_DRIVER_PATH = "/Users/albertocrescini/Downloads/chromedriver"
         self.options = webdriver.ChromeOptions()
         self.options.headless = True
         self.driver = webdriver.Chrome(options=self.options, executable_path=CHROME_DRIVER_PATH)
-        self.driver.get(URL)
+        self.driver.get(url)
         self.accept_cookies()
 
     def accept_cookies(self):
@@ -41,7 +55,7 @@ class website_scraper:
                 return input in self.driver.page_source
 
         except NoSuchElementException:
-            return "Unable to find xpath: %s" % xpath
+            return False
 
     def wait_element_load(self, xpath: str):
         try:
@@ -58,6 +72,11 @@ class website_scraper:
         except ElementClickInterceptedException:
             return "Element click intercepted: other element would receive the click."
 
+    def check_redirect(self, expected_url: str, xpath: str):
+        self.button_click(xpath)
+        response = self.driver.current_url # was response=self.button_click(xpath)
+        return response == expected_url
+    
     def set_field(self, args: dict, submit_xpath: str):
         # mi aspetto {"key": "value"}
         for xpath, value in args.items():
@@ -65,43 +84,21 @@ class website_scraper:
             element.send_keys(value)
         self.wait_element_load('//*[@id="_username"]').submit()
 
-    def download_website():
-        FILENAME = "hackathon_site"
-        FOLDER = "/Users/albertocrescini/Desktop/nhse-2022/backend-dev/template"
-        
-        return save_website(
-            url=URL,
-            project_folder=FOLDER,
-            project_name=FILENAME,
-            bypass_robots=True,
-            debug=True,
-            open_in_browser=True,
-            delay=None,
-            threaded=True,
-        )
-        
-    """
-    print(text_query("NOI Hackathon Summer Edition"))
-    print(text_query("Read more", '''//*[@id="coming-soon"]/div/div/div/div/a'''))
-    print(wait_element_load('''//*[@id="coming-soon"]/div/div/div/div/a'''))
-    print(button_click('''/html/body/footer/div[2]/div[5]/p/a'''))
-    set_field({
-        '//*[@id="_username"]': 'value1',
-        '//*[@id="_password"]': 'value2'
-    }, submit_xpath='//*[@id="_submit"]')
-    """
-
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route('/set_website_url', methods=['PUT'])
+def set_website_url():
+    args = request.args
+    global URL, WEBSITE
+    URL = args.get("url")
+    WEBSITE = URL.split("://")[1]
+    return json.dumps("Destination URL set: %s"%URL)
 
 @app.route('/download', methods=['GET'])
 def download():
-    return send_from_directory("websites/hackathon_site/" + WEBSITE, "index.html")
+    return send_from_directory("hackathon_site/" + WEBSITE, "index.html")
 
-@app.route('/test_case', methods=['GET'])
+@app.route('/test-scenario', methods=['POST'])
 def test_case():
-    scraper = website_scraper()
+    scraper = website_scraper(URL)
     results = list()
     for tc in json.loads(request.data):
         try:
@@ -116,30 +113,38 @@ def test_case():
                 page_url = None
 
             if 'in' in tc:
-                if 'element' in tc:
+                if 'element' in tc['in']:
                     element = tc['in']['element']
                 else:
                     element = None
-                if 'identified_by' in tc:
+                if 'identified_by' in tc['in']:
                     identified_by = tc['in']['identified_by']
                 else:
                     identified_by = None
+
             if 'after' in tc:
                 action = tc['after']
             else:
                 action = None
 
-            if action == "clicked":
-                if identified_by:
-                    scraper.button_click(identified_by)
-
+            if identified_by:
+                if action == "clicked":
+                    query_result = scraper.check_redirect(page_url, identified_by)
+                    print(query_result)
+                    results.append(query_result)
+            
             if has:
-                query_result = scraper.text_query(has, identified_by)
-            elif page_url:
-                query_result = scraper.driver.current_url
-            results.append(query_result)
-            print(query_result)
+                if identified_by:
+                    query_result = scraper.text_query(has, identified_by)
+                    results.append(query_result)
+                    print(query_result)
+                elif element == "page":
+                    query_result = scraper.text_query(has)
+                    results.append(query_result)
+                    print(query_result)
 
+                
+            
 
         except KeyError as e:
             return Response("The specified key '%s' does not exist!"%e, status=404)
@@ -147,5 +152,5 @@ def test_case():
 
 if __name__ == "__main__":
     #download_website()
-    app.run(debug=True)
+    app.run(host="localhost", debug=True)
     
