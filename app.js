@@ -118,29 +118,19 @@ function setOption(row) {
     clearRow();
 
     const selectedValue = evt.target.value;
-    switch (selectedValue) {
-      case "has":
-        row.appendChild(newTextInput());
-        row.appendChild(newPrepositionText("in"));
-        row.appendChild(newElementSelect());
-        break;
+    const constructor = {
+      has: [newTextInput(), newPrepositionText("in"), newElementSelect()],
+      set: [newTextInput(), newPrepositionText("in"), newElementSelect()],
+      trigger: [
+        newSelect([
+          ["click", "click"],
+          ["focus", "focus"],
+        ]),
+        newPrepositionText("on"),
+        newElementSelect(true),
+      ],
+    };
 
-      case "set":
-        row.appendChild(newTextInput());
-        row.appendChild(newPrepositionText("in"));
-        row.appendChild(newElementSelect());
-        break;
-
-      case "trigger":
-        row.appendChild(
-          newSelect([
-            ["click", "click"],
-            ["focus", "focus"],
-          ])
-        );
-        row.appendChild(newPrepositionText("on"));
-        row.appendChild(newElementSelect(true));
-        break;
-    }
+    constructor[selectedValue].forEach((el) => row.appendChild(el));
   };
 }
