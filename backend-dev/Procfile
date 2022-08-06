@@ -1,0 +1,1 @@
+web: gunicorn vest_test.main:app
