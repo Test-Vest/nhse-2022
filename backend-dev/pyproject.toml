@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vest_test"
+name = "test_vest"
 version = "0.1.0"
 description = ""
 authors = ["Dmytro Soltysiuk <dimasoltysiuk@gmail.com>"]
