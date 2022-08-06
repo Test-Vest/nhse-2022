@@ -2,7 +2,6 @@ from xml.etree.ElementPath import xpath_tokenizer
 from seleniumwire import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pywebcopy import save_website
 
@@ -30,16 +29,19 @@ def text_research(input: str, xpath=None):
             return input == element.get_attribute('innerText')
         else:
             return input in driver.page_source
-        
+
     except NoSuchElementException:
-        return "Unable to find xpath: %s"%xpath
+        return "Unable to find xpath: %s" % xpath
+
 
 def wait_element_load(xpath: str):
     try:
-        element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+        element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, xpath)))
     except TimeoutException:
         return "Request timeout."
     return element
+
 
 def button_click(xpath: str):
     try:
@@ -72,7 +74,8 @@ def download_website():
     
 accept_cookies()
 print(text_research("NOI Hackathon Summer Edition"))
-print(text_research("Read more", '''//*[@id="coming-soon"]/div/div/div/div/a'''))
+print(
+    text_research("Read more", '''//*[@id="coming-soon"]/div/div/div/div/a'''))
 print(wait_element_load('''//*[@id="coming-soon"]/div/div/div/div/a'''))
 print(button_click('''/html/body/footer/div[2]/div[5]/p/a'''))
 set_field({

@@ -1,6 +1,5 @@
-from crypt import methods
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, render_template, send_from_directory
 from pywebcopy import save_website
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +26,10 @@ def download_website():
         delay=None,
         threaded=True,
     )
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/download', methods=['GET'])
 def download():

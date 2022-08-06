@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "test_vest"
+version = "0.1.0"
+description = ""
+authors = ["Dmytro Soltysiuk <dimasoltysiuk@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^2.2.1"
+selenium = "^4.3.0"
+selenium-wire = "^4.6.5"
+waitress = "^2.1.2"
+gunicorn = "^20.1.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
