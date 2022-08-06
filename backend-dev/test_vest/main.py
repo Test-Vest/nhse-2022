@@ -1,7 +1,6 @@
+from lib2to3.pgen2 import driver
 import os, json
 from flask import Flask, Response, render_template, send_from_directory, request
-from pywebcopy import save_website
-
 from seleniumwire import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.common.by import By
@@ -62,7 +61,7 @@ class website_scraper:
     def set_field(self, args: dict, submit_xpath: str):
         # mi aspetto {"key": "value"}
         for xpath, value in args.items():
-            element = wait_element_load(xpath)
+            element = self.wait_element_load(xpath)
             element.send_keys(value)
         self.wait_element_load('//*[@id="_username"]').submit()
 
@@ -110,6 +109,12 @@ def test_case():
                 has = tc['has']
             else:
                 has = None
+
+            if 'page_url' in tc:
+                page_url = tc['page_url']
+            else:
+                page_url = None
+
             if 'in' in tc:
                 if 'element' in tc:
                     element = tc['in']['element']
@@ -125,8 +130,13 @@ def test_case():
                 action = None
 
             if action == "clicked":
-                scraper.button_click(identified_by)
-            query_result = scraper.text_query(has, identified_by)
+                if identified_by:
+                    scraper.button_click(identified_by)
+
+            if has:
+                query_result = scraper.text_query(has, identified_by)
+            elif page_url:
+                query_result = scraper.driver.current_url
             results.append(query_result)
             print(query_result)
 
