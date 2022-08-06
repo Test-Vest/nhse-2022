@@ -1,127 +1,146 @@
-const menu = document.querySelector('#mobile-menu');
-const menuLinks = document.querySelector('.navbar__menu');
-const counter = 0;
+const menu = document.querySelector("#mobile-menu");
+const menuLinks = document.querySelector(".navbar__menu");
 
-const addButton = document.getElementById('createInput');
-addButton.addEventListener('click', addInput, false);
+const addButton = document.getElementById("createInput");
+addButton.addEventListener("click", addInput, false);
 
+function newTextInput(placeholder = "something...") {
+  const input = document.createElement("input");
+  input.classList.add("form-control", "mx-2");
+  input.style.maxWidth = "180px";
+  input.placeholder = placeholder;
+
+  return input;
+}
+
+function newPrepositionText(preposition) {
+  const text = document.createElement("p");
+  text.innerText = preposition;
+  text.style.margin = 0;
+
+  return text;
+}
+
+function newSelect(optionsData, onSelectChange) {
+  const select = document.createElement("select");
+  select.classList.add("form-select", "mx-2");
+  select.style.minWidth = "136px";
+  select.style.maxWidth = "172px";
+
+  optionsData.forEach((optionData) => {
+    const option = document.createElement("option");
+    option.text = optionData[0];
+    option.value = optionData[1];
+
+    select.appendChild(option);
+  });
+
+  onSelectChange && select.addEventListener("change", onSelectChange);
+
+  return select;
+}
+
+function newElementSelect(wholePageOptionDisabled = false) {
+  const onSelectChange = (event) => {
+    const button = document.createElement("button");
+    const buttonClassName = "element-select";
+    button.classList.add("btn", "btn-primary", buttonClassName);
+    button.textContent = "select one";
+
+    const row = event.target.parentElement;
+    const elementSelectButton = row.getElementsByClassName(buttonClassName)[0];
+    console.log(row, elementSelectButton);
+    if (elementSelectButton) {
+      elementSelectButton.remove();
+    }
+
+    row.appendChild(button);
+  };
+
+  return newSelect(
+    [
+      ...(!wholePageOptionDisabled ? [["whole page", "wholepage"]] : []),
+      ["custom element", "custom"],
+    ],
+    onSelectChange
+  );
+}
 
 function addInput(evt) {
   evt.preventDefault();
   // Get the element where the inputs will be added to
   var container = document.getElementById("input-container");
-  container.classList.add("mt-3")
+  container.classList.add("mt-3");
   // Create an <input> element, set its type and name attributes
   var row = document.createElement("div");
-  row.classList.add("test-row", "mt-2", "d-flex", "justify-content-between", "align-items-center");
+  row.classList.add(
+    "test-row",
+    "mt-2",
+    "d-flex",
+    "justify-content-between",
+    "align-items-center"
+  );
+
   container.appendChild(row);
   var input = document.createElement("select");
-  input.id = "input-"+counter;
-  input.classList.add('form-select', 'select-syllable');
-  input.style = "width: 100px;"
-  input.options[input.options.length] = new Option('Select', 'null');
-  input.options[input.options.length] = new Option('Has', 'has');
-  input.options[input.options.length] = new Option('After', 'after');
-  input.options[input.options.length] = new Option('Set', 'set');
-  input.options[input.options.length] = new Option('Trigger', 'trigger');
+  input.classList.add("form-select", "select-syllable");
+  input.style = "width: 100px;";
+  input.options[input.options.length] = new Option("Select", "null");
+  input.options[input.options.length] = new Option("Has", "has");
+  input.options[input.options.length] = new Option("Set", "set");
+  input.options[input.options.length] = new Option("Trigger", "trigger");
   input.addEventListener("change", setOption(row), false);
   row.appendChild(input);
-};
+}
 
-const removeButton = document.getElementById('removeInput');
-removeButton.addEventListener('click', removeInput, false);
+const removeButton = document.getElementById("removeInput");
+removeButton.addEventListener("click", removeInput, false);
 
 function removeInput(evt) {
   evt.preventDefault();
   var container = document.getElementById("input-container");
-  if(!container.hasChildNodes()) {
+  if (!container.hasChildNodes()) {
     return;
   } else {
     container.removeChild(container.lastChild);
   }
 }
 
-
 function setOption(row) {
   function clearRow() {
-    const otherElements = [...row.querySelectorAll("*:not(select.select-syllable, option)")];
-    console.log(otherElements);
+    const otherElements = [
+      ...row.querySelectorAll("*:not(select.select-syllable, option)"),
+    ];
     otherElements.forEach((el) => el.remove());
   }
-  return function(evt) {
+
+  return function (evt) {
     clearRow();
+
     const selectedValue = evt.target.value;
     switch (selectedValue) {
-
       case "has":
-        const hasInput = document.createElement("input");
-        hasInput.className = "form-control";
-        hasInput.style = "width: 12rem; height: 2rem;"
-        row.appendChild(hasInput);
-        const hasText = document.createElement("p");
-        hasText.innerText = "in";
-        hasText.style.margin = 0
-        row.appendChild(hasText);
-        const hasSelect = document.createElement("select");
-        hasSelect.id = "input-" + counter;
-        hasSelect.classList.add('form-select');
-        hasSelect.style.width = "136px"
-        hasSelect.options[hasSelect.options.length] = new Option('Whole page', 'wholepage');
-        hasSelect.options[hasSelect.options.length] = new Option('Custom', 'custom');
-        row.appendChild(hasSelect);
-        break;
-
-      case "after":
-        const afterInput = document.createElement("input");
-        afterInput.classList.add("form-input")
-        row.appendChild(afterInput);
-        const afterText = document.createElement("p");
-        afterText.innerText = "in";
-        afterText.style.margin = 0
-        row.appendChild(afterText);
-        const afterSelect = document.createElement("select");
-        afterSelect.id = "input-"+counter;
-        afterSelect.classList.add('form-select');
-        afterSelect.style.width = "136px"
-        afterSelect.options[afterSelect.options.length] = new Option('Whole page', 'wholepage');
-        afterSelect.options[afterSelect.options.length] = new Option('Custom', 'custom');
-        row.appendChild(afterSelect);
+        row.appendChild(newTextInput());
+        row.appendChild(newPrepositionText("in"));
+        row.appendChild(newElementSelect());
         break;
 
       case "set":
-        const setInput = document.createElement("input");
-        row.appendChild(setInput);
-        const setText = document.createElement("p");
-        setText.innerText = "in";
-        setText.style.margin = 0
-        row.appendChild(setText);
-        const setSelect = document.createElement("select");
-        setSelect.id = "input-"+counter;
-        setSelect.classList.add('form-select');
-        setSelect.style.width = "136px"
-        setSelect.options[setSelect.options.length] = new Option('Whole page', 'wholepage');
-        setSelect.options[setSelect.options.length] = new Option('Custom', 'custom');
-        row.appendChild(setSelect);
+        row.appendChild(newTextInput());
+        row.appendChild(newPrepositionText("in"));
+        row.appendChild(newElementSelect());
         break;
 
       case "trigger":
-        const triggerInput = document.createElement("input");
-        row.appendChild(triggerInput);
-        const triggerText = document.createElement("p");
-        triggerText.innerText = "on";
-        triggerText.style.margin = 0
-        row.appendChild(triggerText);
-        const triggerSelect = document.createElement("select");
-        triggerSelect.id = "input-"+counter;
-        triggerSelect.classList.add('form-select');
-        triggerSelect.style.width = "136px"
-        triggerSelect.options[triggerSelect.options.length] = new Option('Click', 'click');
-        triggerSelect.options[triggerSelect.options.length] = new Option('Focus', 'focus');
-        row.appendChild(triggerSelect);
+        row.appendChild(
+          newSelect([
+            ["click", "click"],
+            ["focus", "focus"],
+          ])
+        );
+        row.appendChild(newPrepositionText("on"));
+        row.appendChild(newElementSelect(true));
         break;
     }
-  }
+  };
 }
-
-
-
